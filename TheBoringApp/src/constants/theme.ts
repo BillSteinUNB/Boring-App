@@ -5,53 +5,58 @@
  *
  * Design Philosophy:
  * - Monochrome only - no colors to stimulate
- * - High contrast for accessibility
- * - Simple, readable typography
+ * - Dark theme only - no light mode toggle
+ * - System monospace typography
  * - No decorative elements
  *
  * The visual design should be intentionally plain,
  * reinforcing that this app offers nothing to engage with
  * except the passage of time.
+ *
+ * Color Palette (STRICT - no other colors permitted):
+ * - Background: #0a0a0a (near black)
+ * - Primary text: #888888 (gray)
+ * - Secondary text: #444444 (dark gray)
+ * - Accent/Buttons: #666666 (medium gray)
  */
 
 export const COLORS = {
-  // Primary palette - monochrome only
-  background: '#FFFFFF',
-  surface: '#F5F5F5',
-  text: '#1A1A1A',
-  textSecondary: '#666666',
-  border: '#E0E0E0',
+  // Primary palette - monochrome only, dark theme
+  background: '#0a0a0a',
+  text: '#888888',
+  textSecondary: '#444444',
+  accent: '#666666',
 
-  // Interactive states
-  buttonBackground: '#1A1A1A',
-  buttonText: '#FFFFFF',
-  buttonDisabled: '#CCCCCC',
+  // Semantic aliases (all map to the four permitted colors)
+  surface: '#0a0a0a',
+  border: '#444444',
+  buttonBackground: '#666666',
+  buttonText: '#0a0a0a',
+  buttonBorder: '#666666',
 
-  // Timer states
-  timerActive: '#1A1A1A',
-  timerComplete: '#333333',
+  // Timer states (use permitted colors only)
+  timerActive: '#888888',
+  timerComplete: '#888888',
 } as const;
 
 export const FONTS = {
-  // System fonts only - no custom fonts needed for boring
-  regular: 'System',
-  medium: 'System',
-  bold: 'System',
+  // System monospace only - no custom fonts
+  family: 'monospace',
 
-  // Font sizes
+  // Font sizes - minimal hierarchy
   sizes: {
-    small: 14,
     body: 16,
-    large: 20,
-    timer: 48,
-    title: 24,
+    timer: 16, // Same as body - no emphasis
+  },
+
+  // No bold, no italic - regular weight only
+  weights: {
+    regular: '400' as const,
   },
 
   // Line heights
   lineHeights: {
-    tight: 1.2,
     normal: 1.5,
-    relaxed: 1.75,
   },
 } as const;
 
