@@ -1,32 +1,32 @@
-/**
- * HomeScreen.tsx
- *
- * The single screen of The Boring App - the timer launcher.
- *
- * This screen will contain:
- * - A minimal, monochromatic interface
- * - Three timer duration options (5, 15, 30 minutes)
- * - A start button to begin the boring timer
- * - No animations, no gamification, no distractions
- *
- * Design Philosophy:
- * - Intentionally plain and unstimulating
- * - Maximum whitespace, minimum visual elements
- * - No progress indicators or rewards
- * - Just a simple way to commit to doing nothing
- */
-
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, Pressable, StyleSheet } from 'react-native';
+import { useBoringTimer } from '../hooks/useBoringTimer';
+import { colors, typography, spacing } from '../constants/theme';
+import { DURATIONS } from '../constants/durations';
 
 export default function HomeScreen() {
-  // TODO: Implement timer selection UI
-  // TODO: Implement start button
-  // TODO: Connect to useBoringTimer hook
+  const { status, start } = useBoringTimer();
+
+  if (status === 'running') {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>Put your phone down.</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
-      <Text>The Boring App</Text>
+      <View style={styles.buttonRow}>
+        {DURATIONS.map((duration) => (
+          <Pressable
+            key={duration}
+            style={styles.button}
+            onPress={() => start(duration)}
+          >
+            <Text style={styles.buttonText}>{duration}</Text>
+          </Pressable>
+        ))}
+      </View>
     </View>
   );
 }
@@ -34,7 +34,28 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: colors.background,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    gap: spacing.lg,
+  },
+  button: {
+    width: 64,
+    height: 64,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  buttonText: {
+    color: colors.accent,
+    fontFamily: typography.fontFamily,
+    fontSize: 16,
+  },
+  message: {
+    color: colors.secondaryText,
+    fontFamily: typography.fontFamily,
+    fontSize: 16,
   },
 });
