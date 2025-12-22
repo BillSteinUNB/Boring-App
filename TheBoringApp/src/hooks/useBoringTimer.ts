@@ -1,62 +1,69 @@
-/**
- * useBoringTimer.ts
- *
- * Shared hook for timer logic in The Boring App.
- *
- * This hook will provide:
- * - Timer state management (idle, running, completed)
- * - Countdown logic with remaining time
- * - Platform-agnostic interface for starting/stopping timer
- * - Integration point for platform-specific services
- *
- * Hook Interface (planned):
- * - timerState: 'idle' | 'running' | 'completed'
- * - remainingSeconds: number
- * - selectedDuration: number (in minutes)
- * - startTimer: () => void
- * - stopTimer: () => void
- * - selectDuration: (minutes: number) => void
- *
- * Design Notes:
- * - No pause functionality - commitment is the point
- * - No sound or haptic feedback
- * - Timer continues even if app is backgrounded (via native services)
- */
+import { useState, useMemo } from 'react';
+import { minutesToMs } from '../constants/durations';
 
-import { useState } from 'react';
-import { TIMER_DURATIONS } from '../constants/durations';
+type TimerStatus = 'idle' | 'running' | 'complete';
 
-type TimerState = 'idle' | 'running' | 'completed';
+interface TimerState {
+  status: TimerStatus;
+  selectedDuration: number | null;
+  endTime: number | null;
+}
 
-export function useBoringTimer() {
-  // TODO: Implement timer state
-  const [timerState, setTimerState] = useState<TimerState>('idle');
-  const [remainingSeconds, setRemainingSeconds] = useState<number>(0);
-  const [selectedDuration, setSelectedDuration] = useState<number>(TIMER_DURATIONS[0]);
+interface UseBoringTimerReturn {
+  status: TimerStatus;
+  selectedDuration: number | null;
+  endTime: number | null;
+  timeRemaining: number | null;
+  start: (durationMinutes: number) => void;
+  stop: () => void;
+  reset: () => void;
+}
 
-  // TODO: Implement timer start logic
-  const startTimer = () => {
-    // Will start the timer and trigger platform-specific services
-    throw new Error('Not implemented');
+const initialState: TimerState = {
+  status: 'idle',
+  selectedDuration: null,
+  endTime: null,
+};
+
+export function useBoringTimer(): UseBoringTimerReturn {
+  const [state, setState] = useState<TimerState>(initialState);
+
+  const start = (durationMinutes: number): void => {
+    const durationMs: number = minutesToMs(durationMinutes);
+    const endTime: number = Date.now() + durationMs;
+
+    setState({
+      status: 'running',
+      selectedDuration: durationMs,
+      endTime,
+    });
+
+    console.log(`Timer started: ${durationMinutes} minutes`);
   };
 
-  // TODO: Implement timer stop logic
-  const stopTimer = () => {
-    // Will stop the timer and clean up platform-specific services
-    throw new Error('Not implemented');
+  const stop = (): void => {
+    setState(initialState);
+    console.log('Timer stopped');
   };
 
-  // TODO: Implement duration selection
-  const selectDuration = (minutes: number) => {
-    setSelectedDuration(minutes);
+  const reset = (): void => {
+    stop();
   };
+
+  const timeRemaining: number | null = useMemo(() => {
+    if (state.endTime === null) {
+      return null;
+    }
+    return state.endTime - Date.now();
+  }, [state.endTime]);
 
   return {
-    timerState,
-    remainingSeconds,
-    selectedDuration,
-    startTimer,
-    stopTimer,
-    selectDuration,
+    status: state.status,
+    selectedDuration: state.selectedDuration,
+    endTime: state.endTime,
+    timeRemaining,
+    start,
+    stop,
+    reset,
   };
 }
