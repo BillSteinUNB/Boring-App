@@ -1,15 +1,44 @@
+import { Platform } from 'react-native';
+import * as LiveActivity from 'expo-live-activity';
 import { TimerService } from '../timerService.interface';
 
+// Requires app.json config:
+// "ios": { "supportsLiveActivities": true }
+// Also requires Widget Extension target in Xcode project
+
+const MIN_IOS_VERSION = 16.2;
+
 export const iosTimerService: TimerService = {
+  isSupported(): boolean {
+    // Live Activities require iOS 16.2+ for push updates
+    const version = parseFloat(String(Platform.Version));
+    return Platform.OS === 'ios' && version >= MIN_IOS_VERSION;
+  },
+
   async startTimer(endTime: number): Promise<void> {
-    console.log('iOS: startTimer not yet implemented');
+    if (!this.isSupported()) return;
+
+    try {
+      // startActivity creates a new Live Activity on lock screen and Dynamic Island
+      // The widget extension renders the UI using the provided data
+      await LiveActivity.startActivity({
+        data: {
+          endTime, // Timestamp when timer ends (used by widget for countdown)
+        },
+      });
+    } catch (error) {
+      console.warn('iOS Live Activity: Failed to start', error);
+    }
   },
 
   async stopTimer(): Promise<void> {
-    console.log('iOS: stopTimer not yet implemented');
-  },
+    if (!this.isSupported()) return;
 
-  isSupported(): boolean {
-    return false;
+    try {
+      // endAllActivities dismisses all Live Activities for this app
+      await LiveActivity.endAllActivities();
+    } catch (error) {
+      console.warn('iOS Live Activity: Failed to stop', error);
+    }
   },
 };
