@@ -41,6 +41,22 @@ export function useBoringTimer(): UseBoringTimerReturn {
     };
   }, []);
 
+  const reset = useCallback((): void => {
+    // Clear any pending timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    setState(initialState);
+    console.log('Timer reset');
+  }, []);
+
+  const stop = useCallback((): void => {
+    timerService.stopTimer();
+    reset();
+    console.log('Timer stopped');
+  }, [reset]);
+
   const handleComplete = useCallback((): void => {
     // Set status to complete
     setState((prev) => ({
@@ -60,7 +76,7 @@ export function useBoringTimer(): UseBoringTimerReturn {
     }, 5000);
   }, []);
 
-  const start = (durationMinutes: number): void => {
+  const start = useCallback((durationMinutes: number): void => {
     // Clear any pending timeout from previous completion
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
@@ -76,23 +92,24 @@ export function useBoringTimer(): UseBoringTimerReturn {
       endTime,
     });
 
+    timerService.startTimer(endTime);
     console.log(`Timer started: ${durationMinutes} minutes`);
-  };
+  }, []);
 
-  const stop = (): void => {
-    // Clear any pending timeout
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-      timeoutRef.current = null;
+  // Auto-complete when timer reaches zero
+  useEffect(() => {
+    if (state.status !== 'running' || state.endTime === null) {
+      return;
     }
 
-    setState(initialState);
-    console.log('Timer stopped');
-  };
+    const interval = setInterval(() => {
+      if (Date.now() >= state.endTime!) {
+        handleComplete();
+      }
+    }, 1000);
 
-  const reset = (): void => {
-    stop();
-  };
+    return () => clearInterval(interval);
+  }, [state.status, state.endTime, handleComplete]);
 
   const timeRemaining: number | null = useMemo(() => {
     if (state.endTime === null) {
