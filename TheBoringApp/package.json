@@ -8,10 +8,15 @@
     "android:build": "expo run:android --device",
     "android:dev": "expo start --dev-client",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "ios:build": "expo run:ios --device",
+    "ios:dev": "expo start --dev-client",
+    "prebuild": "expo prebuild",
+    "prebuild:clean": "expo prebuild --clean"
   },
   "dependencies": {
     "expo": "~54.0.30",
+    "expo-live-activity": "^0.2.0",
     "expo-status-bar": "~3.0.9",
     "react": "19.1.0",
     "react-native": "0.81.5"
