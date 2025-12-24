@@ -12,6 +12,10 @@ const mockTimerService: TimerService = {
     console.warn('TimerService: Platform not supported');
   },
 
+  async completeTimer(): Promise<void> {
+    console.warn('TimerService: Platform not supported');
+  },
+
   isSupported(): boolean {
     console.warn('TimerService: Platform not supported');
     return false;

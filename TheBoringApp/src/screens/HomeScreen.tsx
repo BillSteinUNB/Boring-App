@@ -6,6 +6,14 @@ import { DURATIONS } from '../constants/durations';
 export default function HomeScreen() {
   const { status, start } = useBoringTimer();
 
+  if (status === 'complete') {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>Done.</Text>
+      </View>
+    );
+  }
+
   if (status === 'running') {
     return (
       <View style={styles.container}>

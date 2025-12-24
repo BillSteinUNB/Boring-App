@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect, useCallback } from 'react';
 import { minutesToMs } from '../constants/durations';
+import { timerService } from '../services/timerService';
 
 type TimerStatus = 'idle' | 'running' | 'complete';
 
@@ -17,6 +18,7 @@ interface UseBoringTimerReturn {
   start: (durationMinutes: number) => void;
   stop: () => void;
   reset: () => void;
+  handleComplete: () => void;
 }
 
 const initialState: TimerState = {
@@ -27,8 +29,44 @@ const initialState: TimerState = {
 
 export function useBoringTimer(): UseBoringTimerReturn {
   const [state, setState] = useState<TimerState>(initialState);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    };
+  }, []);
+
+  const handleComplete = useCallback((): void => {
+    // Set status to complete
+    setState((prev) => ({
+      ...prev,
+      status: 'complete',
+    }));
+
+    // Trigger platform completion (shows "Done" message)
+    timerService.completeTimer();
+
+    console.log('Timer completed');
+
+    // Auto-reset to idle after 5 seconds
+    timeoutRef.current = setTimeout(() => {
+      setState(initialState);
+      console.log('Timer auto-reset to idle');
+    }, 5000);
+  }, []);
 
   const start = (durationMinutes: number): void => {
+    // Clear any pending timeout from previous completion
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
     const durationMs: number = minutesToMs(durationMinutes);
     const endTime: number = Date.now() + durationMs;
 
@@ -42,6 +80,12 @@ export function useBoringTimer(): UseBoringTimerReturn {
   };
 
   const stop = (): void => {
+    // Clear any pending timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+
     setState(initialState);
     console.log('Timer stopped');
   };
@@ -65,5 +109,6 @@ export function useBoringTimer(): UseBoringTimerReturn {
     start,
     stop,
     reset,
+    handleComplete,
   };
 }

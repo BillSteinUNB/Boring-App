@@ -41,4 +41,29 @@ export const iosTimerService: TimerService = {
       console.warn('iOS Live Activity: Failed to stop', error);
     }
   },
+
+  async completeTimer(): Promise<void> {
+    if (!this.isSupported()) return;
+
+    try {
+      // Update Live Activity to show "Done" state
+      // The widget extension should render "Done" when endTime is 0 or in the past
+      await LiveActivity.updateActivity({
+        data: {
+          endTime: 0, // Signal completion - widget shows "Done"
+        },
+      });
+
+      // After 5 seconds, dismiss the activity
+      setTimeout(async () => {
+        try {
+          await LiveActivity.endAllActivities();
+        } catch (error) {
+          console.warn('iOS Live Activity: Failed to dismiss after completion', error);
+        }
+      }, 5000);
+    } catch (error) {
+      console.warn('iOS Live Activity: Failed to complete', error);
+    }
+  },
 };
