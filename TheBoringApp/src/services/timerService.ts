@@ -1,23 +1,16 @@
 import { Platform } from 'react-native';
-import { TimerService } from './timerService.interface';
+import { TimerService, TimerMode } from './timerService.interface';
 import { iosTimerService } from './ios/liveActivity';
 import { androidTimerService } from './android/liveUpdate';
 
 const mockTimerService: TimerService = {
-  async startTimer(endTime: number): Promise<void> {
-    console.warn('TimerService: Platform not supported');
-  },
+  async startTimer(_endTime: number | null, _mode: TimerMode): Promise<void> {},
 
-  async stopTimer(): Promise<void> {
-    console.warn('TimerService: Platform not supported');
-  },
+  async stopTimer(): Promise<void> {},
 
-  async completeTimer(): Promise<void> {
-    console.warn('TimerService: Platform not supported');
-  },
+  async completeTimer(): Promise<void> {},
 
   isSupported(): boolean {
-    console.warn('TimerService: Platform not supported');
     return false;
   },
 };

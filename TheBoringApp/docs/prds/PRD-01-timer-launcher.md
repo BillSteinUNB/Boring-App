@@ -10,24 +10,24 @@
 |-------|-------|
 | **PRD ID** | PRD-01 |
 | **Title** | Timer Launcher |
-| **Status** | Draft |
+| **Status** | Updated to match implementation |
 | **Author** | BillSteinUNB |
 | **Created** | 2025-12-22 |
-| **Updated** | 2025-12-22 |
-| **Related PRDs** | None (this is the core feature) |
+| **Updated** | 2026-01-03 |
+| **Related PRDs** | PRD-07 (Count-up Mode) |
 
 ---
 
 ## Overview
 
 ### Problem Statement
-The user needs a way to commit to doing nothing for a set period of time. The interface must be so minimal that there's nothing to engage with except starting the timer.
+The user needs a way to commit to doing nothing for a set period of time—or indefinitely. The interface must be so minimal that there's nothing to engage with except starting the timer.
 
 ### User Story
-As a user, I want to select a duration and start a timer so that I can commit to a period of intentional boredom.
+As a user, I want to select a duration (or enter custom time) or start an indefinite count-up so that I can commit to a period of intentional boredom or reflection.
 
 ### Success Metric
-User can tap a duration, tap start, and see the message "Put your phone down." The timer begins counting.
+User can tap a duration/custom input/count-up, and the timer begins. The in-app display shows only minimal feedback—no engaging elements.
 
 ---
 
@@ -35,14 +35,32 @@ User can tap a duration, tap start, and see the message "Put your phone down." T
 
 ### Functional Requirements
 
-- [ ] **FR-01**: Display exactly three duration options: 5, 15, and 30 minutes
-- [ ] **FR-02**: Only one duration can be selected at a time
-- [ ] **FR-03**: Tapping a duration selects it (no confirmation needed)
-- [ ] **FR-04**: Display a single "start" button (no text, or minimal text)
-- [ ] **FR-05**: Tapping start initiates the timer and shows "Put your phone down."
-- [ ] **FR-06**: Once started, the UI shows only the message—no countdown visible in-app
-- [ ] **FR-07**: Default selection is 5 minutes when app opens
-- [ ] **FR-08**: Starting the timer triggers platform-specific lock screen display (PRD-02, PRD-03)
+#### Duration Selection
+- [x] **FR-01**: Display exactly two preset duration options: 15 and 60 minutes
+- [x] **FR-02**: Only one duration can be selected at a time
+- [x] **FR-03**: Tapping a duration selects it immediately (no confirmation needed)
+- [x] **FR-04**: Custom duration option (+) allows input of 1-180 minutes
+- [x] **FR-05**: Count-up mode option (∞) starts indefinite timer
+- [x] **FR-06**: Default selection is 15 minutes when app opens
+
+#### Timer Control
+- [x] **FR-07**: Tapping a preset duration starts the countdown immediately
+- [x] **FR-08**: Custom duration requires tap on "Start" to begin
+- [x] **FR-09**: Count-up mode starts immediately on tap
+- [x] **FR-10**: Count-up mode has full-screen tap area to stop (only way to end)
+- [x] **FR-11**: Once started, the UI shows time elapsed/remaining—no buttons visible
+- [x] **FR-12**: Timer auto-resets after completion (5s countdown, 3s countup)
+- [x] **FR-13**: Starting the timer triggers platform-specific lock screen display (PRD-02, PRD-03)
+
+#### Display States
+| State | Display | Notes |
+|-------|---------|-------|
+| Idle | Duration buttons (15, 60, +, ∞) | No default selected |
+| Idle-custom | Numeric input + Start button | Input 1-180 minutes |
+| Running-countdown | Time remaining + "put it down" | No buttons visible |
+| Running-countup | Time elapsed + "tap to stop" | Full touch area |
+| Complete (countdown) | "Done." | Auto-resets after 5s |
+| Complete (countup) | Time elapsed + "done" | Auto-resets after 3s |
 
 ### UI/UX Requirements
 
@@ -62,19 +80,22 @@ Typography:
 - No bold text
 - No italic text
 - Duration buttons: same size
-- "Put your phone down." message: same size as durations
+- Timer display: larger, prominent
 
 Specific UI requirements:
-- [ ] **UI-01**: Full screen background `#0a0a0a`, no safe area modifications
-- [ ] **UI-02**: Duration buttons arranged horizontally, centered vertically
-- [ ] **UI-03**: Buttons display only the number and "min" (e.g., "5 min")
-- [ ] **UI-04**: Selected button has subtle border `#666666`, unselected have no border
-- [ ] **UI-05**: Start button below duration buttons, minimal size
-- [ ] **UI-06**: No app title, logo, or branding visible anywhere
-- [ ] **UI-07**: No status bar styling beyond dark mode
-- [ ] **UI-08**: "Put your phone down." centered on screen when timer active
-- [ ] **UI-09**: No animations on any interaction
-- [ ] **UI-10**: Tap targets minimum 44pt for accessibility, but visually minimal
+- [x] **UI-01**: Full screen background `#0a0a0a`, no safe area modifications
+- [x] **UI-02**: Duration buttons arranged horizontally, centered vertically
+- [x] **UI-03**: Buttons display only the number and "min" (e.g., "15")
+- [x] **UI-04**: Custom button shows "+" only
+- [x] **UI-05**: Count-up button shows "∞" (infinity symbol)
+- [x] **UI-06**: Selected state indicated by border, unselected have no border
+- [x] **UI-07**: No app title, logo, or branding visible anywhere
+- [x] **UI-08**: No status bar styling beyond dark mode
+- [x] **UI-09**: "put it down" centered below timer when countdown active
+- [x] **UI-10**: "tap to stop" centered below timer when count-up active
+- [x] **UI-11**: No animations on any interaction
+- [x] **UI-12**: Tap targets minimum 44pt for accessibility, but visually minimal
+- [x] **UI-13**: Custom input has border, displays "min" label, numeric keyboard
 
 ### Platform-Specific Notes
 
@@ -94,16 +115,18 @@ Specific UI requirements:
 
 | ID | Anti-Requirement | Rationale |
 |----|------------------|-----------|
-| **AR-01** | No visible countdown timer in the app | Watching time pass is engaging. Put the phone down. |
-| **AR-02** | No cancel or pause button | Commitment means no escape. Start it and you're done. |
+| **AR-01** | No visible countdown timer in the app (count-up mode exception) | Watching time pass is engaging. Put the phone down. Count-up shows elapsed for intentional stopping. |
+| **AR-02** | No cancel or pause button (count-up exception) | Commitment means no escape. Start it and you're done. Count-up allows intentional stop when ready. |
 | **AR-03** | No settings or preferences screen | Nothing to configure. Accept the constraints. |
-| **AR-04** | No onboarding or tutorial | The app is self-evident. Three buttons. That's it. |
-| **AR-05** | No custom duration input | Choice paralysis is engagement. Three options only. |
-| **AR-06** | No sound effects or haptic feedback on tap | Feedback is reward. Taps should feel like nothing. |
-| **AR-07** | No transition animations | Animations are delightful. We don't want delight. |
-| **AR-08** | No app icon badge or home screen widgets | No reason to look at your phone. |
-| **AR-09** | No "are you sure?" confirmation dialogs | Friction is engagement. One tap, done. |
-| **AR-10** | No dark/light mode toggle | It's dark. That's it. |
+| **AR-04** | No onboarding or tutorial | The app is self-evident. Four buttons. That's it. |
+| **AR-05** | No sound effects or haptic feedback on tap | Feedback is reward. Taps should feel like nothing. |
+| **AR-06** | No transition animations | Animations are delightful. We don't want delight. |
+| **AR-07** | No app icon badge or home screen widgets | No reason to look at your phone. |
+| **AR-08** | No "are you sure?" confirmation dialogs | Friction is engagement. One tap, done. |
+| **AR-09** | No dark/light mode toggle | It's dark. That's it. |
+| **AR-10** | No history or statistics tracking | Nothing to analyze. This moment only. |
+| **AR-11** | No social features or sharing | Your boring time is yours alone. |
+| **AR-12** | No notifications beyond timer completion | We won't remind you to be bored. |
 
 ---
 
@@ -113,10 +136,11 @@ Specific UI requirements:
 
 | Action | Path | Purpose |
 |--------|------|---------|
-| Modify | `src/screens/HomeScreen.tsx` | Implement the timer launcher UI |
-| Modify | `src/hooks/useBoringTimer.ts` | Implement timer state and start logic |
-| Modify | `src/constants/theme.ts` | Update colors to match PRD spec |
-| Modify | `src/constants/durations.ts` | Verify durations match spec |
+| Modified | `src/screens/HomeScreen.tsx` | Timer launcher UI with 4 buttons |
+| Modified | `src/hooks/useBoringTimer.ts` | Timer state, countdown + count-up modes |
+| Modified | `src/constants/theme.ts` | Colors matching spec |
+| Modified | `src/constants/durations.ts` | 15/60 durations, custom input range |
+| Created | `src/components/CustomDurationInput.tsx` | Numeric input for custom duration |
 
 ### Dependencies
 
@@ -131,15 +155,20 @@ No additional dependencies required for this PRD.
 
 | State | Type | Location | Initial Value |
 |-------|------|----------|---------------|
-| selectedDuration | `5 \| 15 \| 30` | useBoringTimer | `5` |
-| timerState | `'idle' \| 'running' \| 'completed'` | useBoringTimer | `'idle'` |
+| status | `'idle' \| 'running' \| 'complete'` | useBoringTimer | `'idle'` |
+| mode | `'countdown' \| 'countup'` | useBoringTimer | `'countdown'` |
+| selectedDuration | `number \| null` | useBoringTimer | `null` |
+| endTime | `number \| null` | useBoringTimer | `null` |
+| startTime | `number \| null` | useBoringTimer | `null` |
+| showCustomInput | `boolean` | HomeScreen | `false` |
 
 ### Error Handling
 
 | Error Scenario | Handling Strategy | User Impact |
 |----------------|-------------------|-------------|
 | Platform service fails to start | Log error, continue with in-app timer only | None visible |
-| Invalid duration somehow selected | Default to 5 minutes | None visible |
+| Invalid duration somehow selected | Default to 15 minutes | None visible |
+| Custom input outside 1-180 range | Reset to default 30 minutes | None visible |
 
 ---
 
@@ -149,25 +178,30 @@ No additional dependencies required for this PRD.
 
 **[x] Small** (< 1 day) | **[ ] Medium** (1-3 days) | **[ ] Large** (3+ days)
 
-### Suggested Implementation Order
+### Implementation Order
 
 1. Update `theme.ts` with correct color values
-2. Implement duration selection UI in `HomeScreen.tsx`
-3. Implement `useBoringTimer` hook with state management
-4. Connect UI to hook
-5. Add "Put your phone down." active state
-6. Test all three durations
+2. Implement duration selection UI (15, 60, +, ∞) in `HomeScreen.tsx`
+3. Implement `useBoringTimer` hook with countdown mode
+4. Add custom duration input component
+5. Add count-up mode to timer hook
+6. Connect all UI states to timer hook
+7. Add "put it down" / "tap to stop" active states
+8. Test all four timer options
 
 ### Testing Criteria
 
 | Test | Expected Result | Pass/Fail |
 |------|-----------------|-----------|
-| App opens to timer launcher | Three duration buttons visible, 5 min selected | [ ] |
-| Tap 15 min | 15 min becomes selected, others deselected | [ ] |
-| Tap start with 5 min selected | Shows "Put your phone down." | [ ] |
-| Timer state is 'running' after start | `useBoringTimer` returns running state | [ ] |
-| No visible countdown in app | Only message visible, no numbers | [ ] |
-| No cancel button visible | User cannot stop timer from within app | [ ] |
+| App opens to timer launcher | Four buttons visible: 15, 60, +, ∞ | [x] |
+| Tap 15 min | 15 min timer starts, shows time + "put it down" | [x] |
+| Tap 60 min | 60 min timer starts, shows time + "put it down" | [x] |
+| Tap + | Shows numeric input, "min" label, Start button | [x] |
+| Enter 45, tap Start | 45 min timer starts | [x] |
+| Tap ∞ | Count-up starts, shows 00:00 + "tap to stop" | [x] |
+| Tap screen during count-up | Timer stops, shows elapsed + "done", auto-resets | [x] |
+| Countdown completes | Shows "Done.", auto-resets after 5s | [x] |
+| No visible buttons during countdown | Only time and "put it down" visible | [x] |
 
 ---
 
@@ -186,3 +220,4 @@ No additional dependencies required for this PRD.
 | Date | Author | Change |
 |------|--------|--------|
 | 2025-12-22 | BillSteinUNB | Initial draft |
+| 2026-01-03 | Sisyphus | Updated to match implementation: 15/60 buttons, custom input, count-up mode |
